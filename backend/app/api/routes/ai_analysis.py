@@ -16,20 +16,20 @@ router = APIRouter(tags=["AI Analysis"])
 
 
 @router.get("/stocks/{symbol}/breakout")
-async def get_breakout(symbol: str):
+async def get_breakout_analysis(symbol: str):
     """Detect breakout signals for a stock."""
-    result = detect_breakout(symbol)
+    result = await detect_breakout(symbol)
     return result.model_dump()
 
 
 @router.get("/stocks/{symbol}/analysis")
 async def full_analysis(symbol: str):
     """Get full AI analysis for a stock: indicators + prediction + breakout + AI explanation."""
-    indicators = calculate_indicators(symbol)
-    prediction = predict_trend(symbol)
-    breakout = detect_breakout(symbol)
+    indicators = await calculate_indicators(symbol)
+    prediction = await predict_trend(symbol)
+    breakout = await detect_breakout(symbol)
 
-    df = get_stock_candles(symbol)
+    df = await get_stock_candles(symbol)
     current_price = round(float(df["close"].iloc[-1]), 2)
 
     # Generate AI explanation using Groq

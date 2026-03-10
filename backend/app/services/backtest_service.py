@@ -10,7 +10,7 @@ from app.utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-def run_backtest(symbol: str, initial_capital: float = 100000.0, days: int = 180) -> dict:
+async def run_backtest(symbol: str, initial_capital: float = 100000.0, days: int = 180) -> dict:
     """Run a simple backtest of the rule-based prediction engine.
 
     Strategy:
@@ -19,7 +19,7 @@ def run_backtest(symbol: str, initial_capital: float = 100000.0, days: int = 180
     - Hold otherwise
     """
     logger.info(f"Running backtest for {symbol} over {days} days")
-    df = get_stock_candles(symbol, days=days + 50)  # Extra days for indicator smoothing
+    df = await get_stock_candles(symbol, days=days + 50)  # Extra days for indicator smoothing
 
     capital = initial_capital
     position = 0

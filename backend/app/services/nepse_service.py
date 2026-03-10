@@ -78,21 +78,38 @@ def generate_mock_ohlcv(symbol: str, days: int = 365) -> pd.DataFrame:
     return df
 
 
-def get_stock_candles(symbol: str, timeframe: str = "1D", days: int = 365) -> pd.DataFrame:
-    """Get OHLCV candles for a symbol. Currently uses mock data."""
-    logger.info(f"Fetching candles for {symbol}, timeframe={timeframe}")
+from app.services.api_adapters import fetch_chukul_data, fetch_nepalipaisa_data
+
+async def get_stock_candles(symbol: str, timeframe: str = "1D", days: int = 365) -> pd.DataFrame:
+    """Get OHLCV candles for a symbol. Tries real data, falls back to mock."""
+    logger.info(f"Fetching real candles for {symbol}, timeframe={timeframe}")
+    
+    # Try fetching real data from Chukul (Only 1D supported for now)
+    if timeframe.upper() == "1D":
+        real_df = await fetch_chukul_data(symbol, days)
+        if real_df is not None and not real_df.empty:
+            logger.info(f"Successfully fetched real data for {symbol} from Chukul")
+            return real_df
+
+    logger.warning(f"Could not fetch real data for {symbol}, falling back to mock")
     return generate_mock_ohlcv(symbol.upper(), days)
 
 
-def get_stock_list() -> list[dict]:
+async def get_stock_list() -> list[dict]:
     """Get list of available stocks with current info."""
     stocks = []
     for symbol, info in NEPSE_STOCKS.items():
-        df = generate_mock_ohlcv(symbol, days=5)
-        last_close = float(df["close"].iloc[-1])
-        prev_close = float(df["close"].iloc[-2]) if len(df) >= 2 else last_close
-        change = last_close - prev_close
-        change_pct = (change / prev_close * 100) if prev_close != 0 else 0
+        # Using real data if possible for the list
+        try:
+            df = await get_stock_candles(symbol, days=5)
+            last_close = float(df["close"].iloc[-1])
+            prev_close = float(df["close"].iloc[-2]) if len(df) >= 2 else last_close
+            change = last_close - prev_close
+            change_pct = (change / prev_close * 100) if prev_close != 0 else 0
+            volume = int(df["volume"].iloc[-1])
+        except Exception as e:
+            logger.error(f"Error getting stock info for {symbol}: {e}")
+            last_close = change = change_pct = volume = 0
 
         stocks.append({
             "symbol": symbol,
@@ -101,7 +118,7 @@ def get_stock_list() -> list[dict]:
             "last_price": round(last_close, 2),
             "change": round(change, 2),
             "change_percent": round(change_pct, 2),
-            "volume": int(df["volume"].iloc[-1]),
+            "volume": volume,
         })
 
     return stocks
