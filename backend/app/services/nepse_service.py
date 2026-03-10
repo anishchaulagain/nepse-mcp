@@ -68,10 +68,11 @@ async def get_stock_candles(symbol: str, timeframe: str = "1D", days: int = 365)
         real_df = await fetch_chukul_data(symbol, days)
         if real_df is not None and not real_df.empty:
             logger.info(f"Successfully fetched real data for {symbol} from Chukul")
-            return real_df
+            return real_df.sort_values("timestamp")
 
     logger.warning(f"Could not fetch real data for {symbol}, falling back to mock")
-    return generate_mock_ohlcv(symbol.upper(), days)
+    df = generate_mock_ohlcv(symbol.upper(), days)
+    return df.sort_values("timestamp")
 
 
 async def get_stock_list() -> list[dict]:
