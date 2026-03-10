@@ -25,6 +25,8 @@ class Settings(BaseSettings):
 
     # API
     API_V1_PREFIX: str = "/api/v1"
+    CHUKUL_API_URL: str = "https://chukul.com/api/data/adjhistorydata/data/"
+    NEPALI_PAISA_API_URL: str = "https://nepalipaisa.com/api/GetStockDataForChart"
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 

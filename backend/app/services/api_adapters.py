@@ -4,6 +4,7 @@ import httpx
 import pandas as pd
 from datetime import datetime
 from typing import Optional, Dict, Any
+from app.config.settings import get_settings
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -11,12 +12,12 @@ logger = get_logger(__name__)
 async def fetch_chukul_data(symbol: str, days: int = 365) -> Optional[pd.DataFrame]:
     """
     Fetch OHLCV data from Chukul.com.
-    Endpoint: https://chukul.com/api/data/adjhistorydata/data/?symbol={symbol}&from={from_ts}&to={to_ts}
     """
+    settings = get_settings()
     to_ts = int(datetime.now().timestamp())
     from_ts = to_ts - (days * 24 * 60 * 60)
     
-    url = f"https://chukul.com/api/data/adjhistorydata/data/?symbol={symbol.upper()}&from={from_ts}&to={to_ts}"
+    url = f"{settings.CHUKUL_API_URL}?symbol={symbol.upper()}&from={from_ts}&to={to_ts}"
     
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
@@ -47,11 +48,11 @@ async def fetch_chukul_data(symbol: str, days: int = 365) -> Optional[pd.DataFra
 async def fetch_nepalipaisa_data(symbol: str) -> Optional[Dict[str, Any]]:
     """
     Fetch recent chart data from Nepali Paisa.
-    Endpoint: https://nepalipaisa.com/api/GetStockDataForChart?stockSymbol={symbol}&dataType=1D&_=timestamp
     """
+    settings = get_settings()
     symbol = symbol.upper()
     ts = int(datetime.now().timestamp() * 1000)
-    url = f"https://nepalipaisa.com/api/GetStockDataForChart?stockSymbol={symbol}&dataType=1D&_={ts}"
+    url = f"{settings.NEPALI_PAISA_API_URL}?stockSymbol={symbol}&dataType=1D&_={ts}"
     
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
