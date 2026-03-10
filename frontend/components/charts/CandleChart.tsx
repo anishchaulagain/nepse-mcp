@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { createChart, ColorType, type IChartApi } from "lightweight-charts";
+import {
+  createChart,
+  ColorType,
+  type IChartApi,
+  CandlestickSeries,
+  HistogramSeries,
+  LineSeries,
+} from "lightweight-charts";
 import type { Candle } from "@/types";
 
 interface CandleChartProps {
@@ -61,12 +68,12 @@ export default function CandleChart({
       rightPriceScale: {
         borderColor: "#2a2a3e",
       },
-    }) as any;
+    });
 
     chartRef.current = chart;
 
     // Candlestick series
-    const candleSeries = chart.addCandlestickSeries({
+    const candleSeries = chart.addSeries(CandlestickSeries, {
       upColor: "#10b981",
       downColor: "#ef4444",
       borderUpColor: "#10b981",
@@ -86,7 +93,7 @@ export default function CandleChart({
     candleSeries.setData(candleData as any);
 
     // Volume series
-    const volumeSeries = chart.addHistogramSeries({
+    const volumeSeries = chart.addSeries(HistogramSeries, {
       color: "#6366f1",
       priceFormat: { type: "volume" },
       priceScaleId: "volume",
@@ -106,7 +113,7 @@ export default function CandleChart({
 
     // SMA overlays
     if (sma20 && sma20.length === candles.length) {
-      const sma20Series = chart.addLineSeries({
+      const sma20Series = chart.addSeries(LineSeries, {
         color: "#f59e0b",
         lineWidth: 1,
         title: "SMA20",
@@ -117,7 +124,7 @@ export default function CandleChart({
     }
 
     if (sma50 && sma50.length === candles.length) {
-      const sma50Series = chart.addLineSeries({
+      const sma50Series = chart.addSeries(LineSeries, {
         color: "#06b6d4",
         lineWidth: 1,
         title: "SMA50",
