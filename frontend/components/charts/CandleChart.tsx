@@ -61,7 +61,7 @@ export default function CandleChart({
       rightPriceScale: {
         borderColor: "#2a2a3e",
       },
-    });
+    }) as any;
 
     chartRef.current = chart;
 
