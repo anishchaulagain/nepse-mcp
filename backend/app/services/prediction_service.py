@@ -8,10 +8,10 @@ from app.utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-def predict_trend(symbol: str) -> PredictionResponse:
+async def predict_trend(symbol: str) -> PredictionResponse:
     """Run prediction engine for a given stock symbol."""
     logger.info(f"Running prediction for {symbol}")
-    df = get_stock_candles(symbol)
+    df = await get_stock_candles(symbol)
     result = run_prediction(df)
 
     return PredictionResponse(

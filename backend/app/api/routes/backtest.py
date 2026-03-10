@@ -13,4 +13,4 @@ async def get_backtest(
     initial_capital: float = Query(100000.0)
 ):
     """Run a backtest for a stock symbol."""
-    return run_backtest(symbol, initial_capital, days)
+    return await run_backtest(symbol, initial_capital, days)

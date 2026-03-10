@@ -10,6 +10,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   CheckCircle2,
+  Activity,
 } from "lucide-react";
 import { getTrendColor, getTrendBg } from "@/lib/utils";
 

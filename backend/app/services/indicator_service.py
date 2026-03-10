@@ -12,10 +12,10 @@ from app.utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-def calculate_indicators(symbol: str) -> IndicatorResponse:
+async def calculate_indicators(symbol: str) -> IndicatorResponse:
     """Calculate all technical indicators for a given stock symbol."""
     logger.info(f"Calculating indicators for {symbol}")
-    df = get_stock_candles(symbol)
+    df = await get_stock_candles(symbol)
 
     sma = get_sma_values(df)
     rsi = get_rsi_value(df)
@@ -49,9 +49,9 @@ def calculate_indicators(symbol: str) -> IndicatorResponse:
     )
 
 
-def get_indicator_series(symbol: str) -> dict:
+async def get_indicator_series(symbol: str) -> dict:
     """Get full indicator time series for charting."""
-    df = get_stock_candles(symbol)
+    df = await get_stock_candles(symbol)
     sma = get_sma_values(df)
 
     return {

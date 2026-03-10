@@ -10,7 +10,7 @@ router = APIRouter(tags=["Stocks"])
 @router.get("/stocks")
 async def list_stocks():
     """List all available NEPSE stocks with latest prices."""
-    stocks = get_stock_list()
+    stocks = await get_stock_list()
     return {"stocks": stocks, "total": len(stocks)}
 
 
@@ -21,7 +21,7 @@ async def get_candles(
     days: int = Query(365, ge=30, le=1000, description="Number of days"),
 ):
     """Get OHLCV candle data for a stock."""
-    df = get_stock_candles(symbol, timeframe, days)
+    df = await get_stock_candles(symbol, timeframe, days)
 
     candles = []
     for _, row in df.iterrows():

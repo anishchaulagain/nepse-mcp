@@ -37,10 +37,10 @@ def detect_support_break(df: pd.DataFrame, lookback: int = 20) -> dict:
     }
 
 
-def detect_breakout(symbol: str) -> BreakoutResponse:
+async def detect_breakout(symbol: str) -> BreakoutResponse:
     """Detect breakout using resistance break, volume spike, and Bollinger squeeze."""
     logger.info(f"Detecting breakout for {symbol}")
-    df = get_stock_candles(symbol)
+    df = await get_stock_candles(symbol)
 
     resistance = detect_resistance_break(df)
     support = detect_support_break(df)

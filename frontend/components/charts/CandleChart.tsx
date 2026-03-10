@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { createChart, ColorType, type IChartApi } from "lightweight-charts";
+import {
+  createChart,
+  ColorType,
+  type IChartApi,
+  CandlestickSeries,
+  HistogramSeries,
+  LineSeries,
+} from "lightweight-charts";
 import type { Candle } from "@/types";
 
 interface CandleChartProps {
@@ -66,7 +73,7 @@ export default function CandleChart({
     chartRef.current = chart;
 
     // Candlestick series
-    const candleSeries = chart.addCandlestickSeries({
+    const candleSeries = chart.addSeries(CandlestickSeries, {
       upColor: "#10b981",
       downColor: "#ef4444",
       borderUpColor: "#10b981",
@@ -75,18 +82,20 @@ export default function CandleChart({
       wickDownColor: "#ef4444",
     });
 
-    const candleData = candles.map((c) => ({
-      time: c.time as string,
-      open: c.open,
-      high: c.high,
-      low: c.low,
-      close: c.close,
-    }));
+    const candleData = candles
+      .map((c) => ({
+        time: c.time as string,
+        open: c.open,
+        high: c.high,
+        low: c.low,
+        close: c.close,
+      }))
+      .sort((a, b) => (a.time < b.time ? -1 : 1));
 
     candleSeries.setData(candleData as any);
 
     // Volume series
-    const volumeSeries = chart.addHistogramSeries({
+    const volumeSeries = chart.addSeries(HistogramSeries, {
       color: "#6366f1",
       priceFormat: { type: "volume" },
       priceScaleId: "volume",
@@ -96,35 +105,39 @@ export default function CandleChart({
       scaleMargins: { top: 0.8, bottom: 0 },
     });
 
-    const volumeData = candles.map((c) => ({
-      time: c.time as string,
-      value: c.volume,
-      color: c.close >= c.open ? "rgba(16, 185, 129, 0.3)" : "rgba(239, 68, 68, 0.3)",
-    }));
+    const volumeData = candles
+      .map((c) => ({
+        time: c.time as string,
+        value: c.volume,
+        color: c.close >= c.open ? "rgba(16, 185, 129, 0.3)" : "rgba(239, 68, 68, 0.3)",
+      }))
+      .sort((a, b) => (a.time < b.time ? -1 : 1));
 
     volumeSeries.setData(volumeData as any);
 
     // SMA overlays
     if (sma20 && sma20.length === candles.length) {
-      const sma20Series = chart.addLineSeries({
+      const sma20Series = chart.addSeries(LineSeries, {
         color: "#f59e0b",
         lineWidth: 1,
         title: "SMA20",
       });
-      sma20Series.setData(
-        candles.map((c, i) => ({ time: c.time as string, value: sma20[i] })) as any
-      );
+      const sma20Data = candles
+        .map((c, i) => ({ time: c.time as string, value: sma20[i] }))
+        .sort((a, b) => (a.time < b.time ? -1 : 1));
+      sma20Series.setData(sma20Data as any);
     }
 
     if (sma50 && sma50.length === candles.length) {
-      const sma50Series = chart.addLineSeries({
+      const sma50Series = chart.addSeries(LineSeries, {
         color: "#06b6d4",
         lineWidth: 1,
         title: "SMA50",
       });
-      sma50Series.setData(
-        candles.map((c, i) => ({ time: c.time as string, value: sma50[i] })) as any
-      );
+      const sma50Data = candles
+        .map((c, i) => ({ time: c.time as string, value: sma50[i] }))
+        .sort((a, b) => (a.time < b.time ? -1 : 1));
+      sma50Series.setData(sma50Data as any);
     }
 
     chart.timeScale().fitContent();

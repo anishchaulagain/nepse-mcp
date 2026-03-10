@@ -1,6 +1,7 @@
 import { getStocks } from "@/lib/api";
 import MarketOverview from "@/components/dashboard/MarketOverview";
 import { Activity, TrendingUp, Zap } from "lucide-react";
+import StockSearch from "@/components/dashboard/StockSearch";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,9 @@ export default async function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Search Bar */}
+      <StockSearch />
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8 animate-slide-up" style={{ animationDelay: "100ms" }}>
