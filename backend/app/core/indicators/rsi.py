@@ -6,6 +6,9 @@ import numpy as np
 
 def calculate_rsi(series: pd.Series, period: int = 14) -> pd.Series:
     """Calculate RSI using Wilder's smoothing method."""
+    if len(series) <= period:
+        return pd.Series(np.nan, index=series.index)
+
     delta = series.diff()
 
     gain = delta.where(delta > 0, 0.0)

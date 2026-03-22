@@ -51,10 +51,15 @@ def get_macd_values(df: pd.DataFrame) -> dict:
     else:
         trend = "neutral"
 
+    def safe_round(val, places=4):
+        if pd.isna(val):
+            return None
+        return round(float(val), places)
+
     return {
-        "macd_line": round(macd_val, 4),
-        "signal_line": round(signal_val, 4),
-        "histogram": round(hist_val, 4),
+        "macd_line": safe_round(macd_val, 4),
+        "signal_line": safe_round(signal_val, 4),
+        "histogram": safe_round(hist_val, 4),
         "trend": trend,
         "macd_series": result["macd_line"],
         "signal_series": result["signal_line"],

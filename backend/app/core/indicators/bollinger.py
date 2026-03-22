@@ -35,14 +35,20 @@ def get_bollinger_values(df: pd.DataFrame) -> dict:
     )
 
     # Squeeze detection: bandwidth < threshold (typically < 4%)
-    squeeze = bandwidth < 4.0
+    # Squeeze detection: bandwidth < threshold (typically < 4%)
+    squeeze = bandwidth < 4.0 if not pd.isna(bandwidth) else False
+
+    def safe_round(val, places=2):
+        if pd.isna(val):
+            return None
+        return round(float(val), places)
 
     return {
-        "upper": round(upper, 2),
-        "middle": round(middle, 2),
-        "lower": round(lower, 2),
-        "bandwidth": round(bandwidth, 4),
-        "band_position": round(band_position, 4),
+        "upper": safe_round(upper, 2),
+        "middle": safe_round(middle, 2),
+        "lower": safe_round(lower, 2),
+        "bandwidth": safe_round(bandwidth, 4),
+        "band_position": safe_round(band_position, 4),
         "squeeze": squeeze,
         "upper_series": bands["upper"],
         "middle_series": bands["middle"],
