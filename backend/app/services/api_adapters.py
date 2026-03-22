@@ -68,3 +68,23 @@ async def fetch_nepalipaisa_data(symbol: str) -> Optional[Dict[str, Any]]:
     except Exception as e:
         logger.error(f"Error fetching Nepali Paisa data for {symbol}: {e}")
         return None
+
+async def fetch_chukul_symbols() -> list[Dict[str, Any]]:
+    """
+    Fetch the list of available NEPSE symbols from Chukul.com.
+    """
+    settings = get_settings()
+    url = settings.CHUKUL_SYMBOL_API_URL
+    
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            data = response.json()
+            if isinstance(data, list):
+                return data
+            return []
+            
+    except Exception as e:
+        logger.error(f"Error fetching Chukul symbols: {e}")
+        return []

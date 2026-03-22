@@ -57,7 +57,7 @@ def generate_mock_ohlcv(symbol: str, days: int = 365) -> pd.DataFrame:
     return df
 
 
-from app.services.api_adapters import fetch_chukul_data, fetch_nepalipaisa_data
+from app.services.api_adapters import fetch_chukul_data, fetch_nepalipaisa_data, fetch_chukul_symbols
 
 async def get_stock_candles(symbol: str, timeframe: str = "1D", days: int = 365) -> pd.DataFrame:
     """Get OHLCV candles for a symbol. Tries real data, falls back to mock."""
@@ -76,7 +76,22 @@ async def get_stock_candles(symbol: str, timeframe: str = "1D", days: int = 365)
 
 
 async def get_stock_list() -> list[dict]:
-    """Get list of recent/trending stocks (now empty since we use search)."""
-    # In a real app, this could fetch from a cache or a dynamic discovery API
-    # For now, we return an empty list to indicate search is expected
-    return []
+    """Get list of NEPSE stocks from Chukul API."""
+    try:
+        raw_symbols = await fetch_chukul_symbols()
+        formatted_list = []
+        for s in raw_symbols:
+            if s.get("type") == "stock":
+                formatted_list.append({
+                    "symbol": s.get("symbol", ""),
+                    "name": s.get("name", ""),
+                    "sector": "Equity",  # Generic since sector_id is numeric
+                    "last_price": 0,
+                    "change": 0,
+                    "change_percent": 0,
+                    "volume": 0
+                })
+        return formatted_list
+    except Exception as e:
+        logger.error(f"Error getting stock list: {e}")
+        return []

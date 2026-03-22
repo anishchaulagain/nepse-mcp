@@ -1,5 +1,5 @@
 import { getStocks } from "@/lib/api";
-import MarketOverview from "@/components/dashboard/MarketOverview";
+import SymbolGrid from "@/components/dashboard/SymbolGrid";
 import { Activity, TrendingUp, Zap } from "lucide-react";
 import StockSearch from "@/components/dashboard/StockSearch";
 
@@ -69,8 +69,8 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* Market Overview */}
-      {stocks.length > 0 && <MarketOverview stocks={stocks} />}
+      {/* Symbol Grid */}
+      {stocks.length > 0 && <SymbolGrid stocks={stocks} />}
 
       {/* Empty State */}
       {!error && stocks.length === 0 && (
