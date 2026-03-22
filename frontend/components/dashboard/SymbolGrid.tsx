@@ -94,9 +94,9 @@ export default function SymbolGrid({ stocks }: { stocks: StockInfo[] }) {
                   style={{ animationDelay: `${Math.min(i * 10, 500)}ms` }}
                 >
                   <td className="px-5 py-3">
-                    <span className="font-semibold text-[var(--color-text-primary)]">
+                    <Link href={`/stocks/${stock.symbol}`} className="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
                       {stock.symbol}
-                    </span>
+                    </Link>
                   </td>
                   <td className="px-5 py-3 text-sm text-[var(--color-text-secondary)] hidden sm:table-cell">
                     {stock.name}
