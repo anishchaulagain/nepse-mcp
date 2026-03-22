@@ -80,6 +80,7 @@ export interface FullAnalysis {
   prediction: PredictionResponse;
   breakout: BreakoutResponse;
   ai_explanation: string;
+  ai_recommendation: string;
   timestamp: string;
 }
 

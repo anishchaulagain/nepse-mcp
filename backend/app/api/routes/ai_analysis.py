@@ -34,6 +34,7 @@ async def full_analysis(symbol: str):
 
     # Generate AI explanation using Groq
     ai_explanation = ""
+    ai_recommendation = "HOLD"
     settings = get_settings()
 
     if settings.GROQ_API_KEY:
@@ -56,7 +57,9 @@ Prediction: {prediction.trend} (confidence: {prediction.confidence})
 Breakout: {breakout.breakout} ({breakout.type})
 Signals: {', '.join(prediction.signals)}
 
-Provide a concise 3-4 sentence analysis in simple language. Focus on what a retail investor should know. Include the trend direction, key risk, and a suggestion."""
+Provide a decisive recommendation for a retail investor. You must strictly follow this exact format:
+Recommendation: [BUY or SELL or HOLD]
+Analysis: [A concise 2-3 sentence analysis in simple language explaining the recommendation, trend direction, and key risks.]"""
 
             chat = client.chat.completions.create(
                 model=settings.GROQ_MODEL,
@@ -64,7 +67,49 @@ Provide a concise 3-4 sentence analysis in simple language. Focus on what a reta
                 temperature=0.7,
                 max_tokens=300,
             )
-            ai_explanation = chat.choices[0].message.content
+            response_content = chat.choices[0].message.content or ""
+            
+            # Parse the response
+            # Format expected:
+            # Recommendation: BUY
+            # Analysis: ...
+            parsed_recommendation = None
+            parsed_analysis = None
+            
+            for line in response_content.split('\n'):
+                line = line.strip()
+                if line.upper().startswith("RECOMMENDATION:"):
+                    raw_rec = line.split(":", 1)[1].strip().upper()
+                    # Clean up punctuation if any
+                    for word in ["BUY", "SELL", "HOLD"]:
+                        if word in raw_rec:
+                            parsed_recommendation = word
+                            break
+                    if not parsed_recommendation:
+                        parsed_recommendation = "HOLD"
+                elif line.upper().startswith("ANALYSIS:"):
+                    parsed_analysis = line.split(":", 1)[1].strip()
+            
+            # In case LLM doesn't strict format, we do our best
+            if not parsed_analysis:
+                # If we couldn't parse Analysis:, just take the text after "Recommendation:"
+                if "RECOMMENDATION:" in response_content.upper():
+                    parts = response_content.upper().split("RECOMMENDATION:", 1)
+                    if len(parts) > 1:
+                        # Extract the next line usually
+                        try:
+                            # It's a rough fallback
+                            after_rec = parts[1].split("\n", 1)
+                            if len(after_rec) > 1:
+                                parsed_analysis = after_rec[1].strip()
+                        except:
+                            parsed_analysis = response_content
+                else:
+                    parsed_analysis = response_content
+
+            ai_recommendation = parsed_recommendation or "HOLD"
+            ai_explanation = parsed_analysis or response_content
+            
         except Exception as e:
             logger.error(f"Groq LLM error: {e}")
             ai_explanation = prediction.summary
@@ -79,5 +124,6 @@ Provide a concise 3-4 sentence analysis in simple language. Focus on what a reta
         "prediction": prediction.model_dump(),
         "breakout": breakout.model_dump(),
         "ai_explanation": ai_explanation,
+        "ai_recommendation": ai_recommendation,
         "timestamp": datetime.now().isoformat(),
     }

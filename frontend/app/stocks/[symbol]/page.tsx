@@ -108,6 +108,7 @@ export default async function StockDetailPage({ params }: StockPageProps) {
                 prediction={prediction}
                 breakout={breakout}
                 aiExplanation={analysis?.ai_explanation}
+                aiRecommendation={analysis?.ai_recommendation}
               />
             )}
           </div>

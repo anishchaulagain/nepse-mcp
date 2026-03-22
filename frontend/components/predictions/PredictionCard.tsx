@@ -18,6 +18,7 @@ interface PredictionCardProps {
   prediction: PredictionResponse;
   breakout?: BreakoutResponse;
   aiExplanation?: string;
+  aiRecommendation?: string;
 }
 
 const trendIcons: Record<string, React.ReactNode> = {
@@ -33,8 +34,22 @@ export default function PredictionCard({
   prediction,
   breakout,
   aiExplanation,
+  aiRecommendation,
 }: PredictionCardProps) {
   const confidencePct = Math.round(prediction.confidence * 100);
+
+  const getRecommendationStyle = (rec?: string) => {
+    switch (rec?.toUpperCase()) {
+      case "BUY":
+        return "bg-emerald-500/20 border-emerald-500/40 text-emerald-400 font-bold shadow-[0_0_15px_rgba(16,185,129,0.2)]";
+      case "SELL":
+        return "bg-rose-500/20 border-rose-500/40 text-rose-400 font-bold shadow-[0_0_15px_rgba(244,63,94,0.2)]";
+      case "HOLD":
+        return "bg-amber-500/20 border-amber-500/40 text-amber-400 font-bold shadow-[0_0_15px_rgba(245,158,11,0.2)]";
+      default:
+        return "bg-[var(--color-surface-elevated)] border-[var(--color-border)] text-[var(--color-text-secondary)]";
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -113,15 +128,28 @@ export default function PredictionCard({
         </div>
       )}
 
-      {/* AI Explanation */}
-      {aiExplanation && (
-        <div className="glass-card p-4">
-          <span className="text-xs text-[var(--color-text-secondary)] uppercase tracking-wider">
-            AI Analysis
-          </span>
-          <p className="mt-2 text-sm text-[var(--color-text-primary)] leading-relaxed">
-            {aiExplanation}
-          </p>
+      {/* AI Explanation and Recommendation */}
+      {(aiExplanation || aiRecommendation) && (
+        <div className="glass-card p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-[var(--color-text-secondary)] uppercase tracking-wider font-semibold">
+              AI Analysis
+            </span>
+            {aiRecommendation && (
+              <div
+                className={`px-4 py-1.5 rounded-full border text-sm animate-pulse-slow ${getRecommendationStyle(
+                  aiRecommendation
+                )}`}
+              >
+                {aiRecommendation.toUpperCase()}
+              </div>
+            )}
+          </div>
+          {aiExplanation && (
+            <p className="text-sm text-[var(--color-text-primary)] leading-relaxed text-pretty">
+              {aiExplanation}
+            </p>
+          )}
         </div>
       )}
     </div>
