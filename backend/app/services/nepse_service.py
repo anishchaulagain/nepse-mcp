@@ -20,7 +20,7 @@ def generate_mock_ohlcv(symbol: str, days: int = 365) -> pd.DataFrame:
 
     np.random.seed(hash(symbol) % 2**32)
 
-    dates = pd.date_range(end=datetime.now(), periods=days, freq="B")  # business days
+    dates = pd.date_range(end=datetime.now(), periods=days, freq="D")  # calendar days for deterministic length
 
     # Generate realistic price movement using geometric Brownian motion
     drift = 0.0002
