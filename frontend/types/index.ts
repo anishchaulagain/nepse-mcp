@@ -8,6 +8,13 @@ export interface StockInfo {
   change: number;
   change_percent: number;
   volume: number;
+  max_price?: number;
+  min_price?: number;
+  opening_price?: number;
+  previous_closing?: number;
+  difference_rs?: number;
+  no_of_transactions?: number;
+  amount?: number;
 }
 
 export interface Candle {

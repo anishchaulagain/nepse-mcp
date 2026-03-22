@@ -57,7 +57,7 @@ def generate_mock_ohlcv(symbol: str, days: int = 365) -> pd.DataFrame:
     return df
 
 
-from app.services.api_adapters import fetch_chukul_data, fetch_nepalipaisa_data, fetch_chukul_symbols
+from app.services.api_adapters import fetch_chukul_data, fetch_nepalipaisa_data, fetch_chukul_symbols, fetch_nepalipaisa_live_stocks
 
 async def get_stock_candles(symbol: str, timeframe: str = "1D", days: int = 365) -> pd.DataFrame:
     """Get OHLCV candles for a symbol. Tries real data, falls back to mock."""
@@ -76,21 +76,30 @@ async def get_stock_candles(symbol: str, timeframe: str = "1D", days: int = 365)
 
 
 async def get_stock_list() -> list[dict]:
-    """Get list of NEPSE stocks from Chukul API."""
+    """Get list of NEPSE stocks from Nepali Paisa API."""
     try:
-        raw_symbols = await fetch_chukul_symbols()
+        raw_stocks = await fetch_nepalipaisa_live_stocks()
         formatted_list = []
-        for s in raw_symbols:
-            if s.get("type") == "stock":
-                formatted_list.append({
-                    "symbol": s.get("symbol", ""),
-                    "name": s.get("name", ""),
-                    "sector": "Equity",  # Generic since sector_id is numeric
-                    "last_price": 0,
-                    "change": 0,
-                    "change_percent": 0,
-                    "volume": 0
-                })
+        for s in raw_stocks:
+            symbol = s.get("stockSymbol", "")
+            if not symbol:
+                continue
+                
+            formatted_list.append({
+                "symbol": symbol,
+                "name": s.get("companyName", ""),
+                "sector": "Equity",  # Generic since sector_id is numeric
+                "last_price": s.get("closingPrice", 0) or 0,
+                "change": s.get("differenceRs", 0) or 0,
+                "change_percent": s.get("percentChange", 0) or 0,
+                "volume": s.get("volume", 0) or 0,
+                "max_price": s.get("maxPrice", 0) or 0,
+                "min_price": s.get("minPrice", 0) or 0,
+                "opening_price": s.get("openingPrice", 0) or 0,
+                "previous_closing": s.get("previousClosing", 0) or 0,
+                "no_of_transactions": s.get("noOfTransactions", 0) or 0,
+                "amount": s.get("amount", 0) or 0,
+            })
         return formatted_list
     except Exception as e:
         logger.error(f"Error getting stock list: {e}")

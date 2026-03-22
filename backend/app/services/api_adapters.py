@@ -102,3 +102,38 @@ async def fetch_chukul_symbols() -> list[Dict[str, Any]]:
         logger.error(f"Error fetching Chukul symbols: {e}")
         # Return stale cache if available, otherwise empty
         return _chukul_symbols_cache if _chukul_symbols_cache is not None else []
+
+_nepalipaisa_live_stocks_cache = None
+_nepalipaisa_live_stocks_cache_time = 0
+
+async def fetch_nepalipaisa_live_stocks() -> list[Dict[str, Any]]:
+    """
+    Fetch live stock data from Nepali Paisa.
+    Uses an in-memory 1-minute cache.
+    """
+    global _nepalipaisa_live_stocks_cache, _nepalipaisa_live_stocks_cache_time
+    
+    now = datetime.now().timestamp()
+    if _nepalipaisa_live_stocks_cache is not None and (now - _nepalipaisa_live_stocks_cache_time < 60):
+        return _nepalipaisa_live_stocks_cache
+
+    settings = get_settings()
+    ts = int(now * 1000)
+    url = f"{settings.NEPALI_PAISA_LIVE_STOCKS_URL}?stockSymbol=&_={ts}"
+    
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            data = response.json()
+            
+            if data.get("statusCode") == 200 and data.get("result") and "stocks" in data["result"]:
+                stocks = data["result"]["stocks"]
+                _nepalipaisa_live_stocks_cache = stocks
+                _nepalipaisa_live_stocks_cache_time = now
+                return stocks
+            return []
+            
+    except Exception as e:
+        logger.error(f"Error fetching Nepali Paisa live stocks: {e}")
+        return _nepalipaisa_live_stocks_cache if _nepalipaisa_live_stocks_cache is not None else []

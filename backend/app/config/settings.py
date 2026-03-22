@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     CHUKUL_API_URL: str = "https://chukul.com/api/data/adjhistorydata/data/"
     CHUKUL_SYMBOL_API_URL: str = "https://chukul.com/api/data/symbol/"
     NEPALI_PAISA_API_URL: str = "https://nepalipaisa.com/api/GetStockDataForChart"
+    NEPALI_PAISA_LIVE_STOCKS_URL: str = "https://nepalipaisa.com/api/GetStockLive"
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 
