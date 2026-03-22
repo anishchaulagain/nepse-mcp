@@ -1,21 +1,12 @@
-import { getStocks } from "@/lib/api";
-import SymbolGrid from "@/components/dashboard/SymbolGrid";
+import { Suspense } from "react";
+import SymbolGridWrapper from "@/components/dashboard/SymbolGridWrapper";
+import SymbolGridSkeleton from "@/components/dashboard/SymbolGridSkeleton";
 import { Activity, TrendingUp, Zap } from "lucide-react";
 import StockSearch from "@/components/dashboard/StockSearch";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
-  let stocks: any[] = [];
-  let error = "";
-
-  try {
-    const data = await getStocks();
-    stocks = data.stocks;
-  } catch (e: any) {
-    error = e.message || "Failed to fetch stocks";
-  }
-
+export default function DashboardPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
       {/* Hero */}
@@ -60,30 +51,10 @@ export default async function DashboardPage() {
         </a>
       </div>
 
-      {/* Error State */}
-      {error && (
-        <div className="glass-card p-6 mb-6 border border-red-500/30 bg-red-500/5">
-          <p className="text-red-400 text-sm">
-            ⚠️ {error} — Make sure the backend is running on port 8000.
-          </p>
-        </div>
-      )}
-
       {/* Symbol Grid */}
-      {stocks.length > 0 && <SymbolGrid stocks={stocks} />}
-
-      {/* Empty State */}
-      {!error && stocks.length === 0 && (
-        <div className="glass-card p-12 text-center">
-          <Activity className="w-12 h-12 text-[var(--color-text-secondary)] mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-2">
-            Loading market data...
-          </h3>
-          <p className="text-sm text-[var(--color-text-secondary)]">
-            Connecting to NEPSE AI backend
-          </p>
-        </div>
-      )}
+      <Suspense fallback={<SymbolGridSkeleton />}>
+        <SymbolGridWrapper />
+      </Suspense>
     </div>
   );
 }
